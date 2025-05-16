@@ -6,6 +6,7 @@ import {
   FiTwitter,
 } from 'react-icons/fi';
 import { SiTiktok } from 'react-icons/si';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -15,7 +16,9 @@ const Footer = () => {
         <div className='text-left'>
           <h3 className="text-lg font-thin mb-4">Quick links</h3>
           <ul className="space-y-2  text-gray-600">
-            <li><a href="#" className="hover:text-black">Bags</a></li>
+            <Link to="/faceanalyzer">
+            <li><a href="#" className="hover:text-black">Face Anaylser</a></li>
+            </Link>
             <li><a href="#" className="hover:text-black">Shoes</a></li>
             <li><a href="#" className="hover:text-black">Lookbook</a></li>
           </ul>
