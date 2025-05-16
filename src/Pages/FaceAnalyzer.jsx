@@ -222,7 +222,9 @@ const faceShapeImages = {
     reader.onloadend = async () => {
       const base64Image = reader.result.split(",")[1];
       try {
-        const response = await fetch("http://localhost:5000/api/result", {
+       
+        //  const response = await fetch("http://localhost:5000/api/result", {
+        const response = await fetch(" https://python-backend-mg86.onrender.com/api/result", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image_data: base64Image }),
