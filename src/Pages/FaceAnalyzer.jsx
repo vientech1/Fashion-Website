@@ -7,11 +7,13 @@ import roundImg from '../assets/round.png';
 import squareImg from '../assets/square.png';
 
 
+
 function FaceAnalyzer() {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [bodyType, setBodyType] = useState("");
 
   const faceShapeColors = {
     "#373028": [
@@ -223,8 +225,8 @@ const faceShapeImages = {
       const base64Image = reader.result.split(",")[1];
       try {
        
-        //  const response = await fetch("http://localhost:5000/api/result", {
-        const response = await fetch(" https://python-backend-mg86.onrender.com/api/result", {
+         const response = await fetch("http://localhost:5000/api/result", {
+     //   const response = await fetch(" https://python-backend-mg86.onrender.com/api/result", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image_data: base64Image }),
@@ -242,30 +244,81 @@ const faceShapeImages = {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4  py-12 bg-white">
+    <div className="min-h-screen flex flex-col items-center justify-start mt-16 px-4  py-12 bg-white">
       <h1 className="text-3xl md:text-4xl font-extrabold mb-6 text-center">
         Face Analyzer
       </h1>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        className="mb-4"
-      />
-      {preview && (
-        <img
-          src={preview}
-          alt="preview"
-          className="w-64 h-64 object-cover rounded-lg mb-4"
-        />
-      )}
+
+      <div className="flex flex-col items-center gap-4 w-full max-w-md">
+  {/* File Upload */}
+  <label
+    htmlFor="image-upload"
+    className="cursor-pointer border border-black text-black  hover:bg-black hover:text-white  px-8 py-2 font-semibold"
+  >
+    {image ? "Change Image" : "Choose Image"}
+  </label>
+  <input
+    id="image-upload"
+    type="file"
+    accept="image/*"
+    onChange={handleImageChange}
+    className="hidden"
+  />
+
+  {/* Preview */}
+  {preview && (
+    <img
+      src={preview}
+      alt="preview"
+      className="w-64 h-64 object-cover rounded-lg shadow-md"
+    />
+  )}
+
+  {/* Dropdown */}
+  <div className="w-full">
+    <label htmlFor="bodyType" className="block text-m font-medium text-black-700 mb-1 font-semibold">
+      Select Body Type
+    </label>
+    <select
+      id="bodyType"
+      name="bodyType"
+      value={bodyType}
+      onChange={(e) => setBodyType(e.target.value)}
+      className="w-5/2 border border-gray-300  px-4 py-2 text-gray-800 focus:outline-none focus:ring-1 focus:ring-black focus:border-transparent"
+    >
+      <option value="">-- Select --</option>
+      <option value="average">Average Height and Weight/Thin</option>
+      <option value="heavy">Average Height and Heavyset</option>
+      <option value="tall">Average Weight and Tall</option>
+      <option value="tallThin">Tall and Thin</option>
+      <option value="shortHeavy">Short and Heavyset</option>
+    </select>
+  </div>
+</div>
+
+
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className="bg-black text-white px-8 py-2 font-semibold  hover:opacity-90 transition"
+        className="bg-black text-white px-8 py-2 mt-5 font-semibold  hover:opacity-90 transition"
       >
         {loading ? "Processing..." : "Analyze"}
       </button>
+
+      
+            {/* <div className="mb-4 text-gray-600 flex flex-wrap justify-center gap-6 pt-10 ">
+  {Object.entries(colorHexCodes).map(([colorName, hexCode], key) => (
+    <Circles
+      key={key}
+      hexcolor={hexCode}
+      colorname={colorName}
+    />
+  ))}
+</div> */}
+
+      
+
+
 
       {result && (
         <div className="mt-10 max-w-xl w-full text-center">
@@ -328,6 +381,7 @@ const faceShapeImages = {
                   )
                 )
               : "No colour Suggested"}
+
           </div>
           </div>
         </div>
