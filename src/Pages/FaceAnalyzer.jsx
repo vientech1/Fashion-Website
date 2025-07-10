@@ -8,12 +8,16 @@ import squareImg from '../assets/square.png';
 
 
 
+
 function FaceAnalyzer() {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [bodyType, setBodyType] = useState("");
+
+
+
 
   const faceShapeColors = {
     "#373028": [
@@ -211,37 +215,79 @@ const faceShapeImages = {
 
 
 
+
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
 
-  const handleSubmit = async () => {
-    if (!image) return;
-    setLoading(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Image = reader.result.split(",")[1];
-      try {
-       
-         const response = await fetch("http://localhost:5000/api/result", {
-     //   const response = await fetch(" https://python-backend-mg86.onrender.com/api/result", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image_data: base64Image }),
-        });
-        const data = await response.json();
-        setResult(data);
-        console.log(data);
-      } catch (err) {
-        console.error(err);
-        alert("Error while processing image");
-      }
-      setLoading(false);
-    };
-    reader.readAsDataURL(image);
+const handleSubmit = async () => {
+  if (!image) return;
+  setLoading(true);
+
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxSize = 512; // Max width/height
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const base64 = canvas.toDataURL("image/jpeg", 0.7); // 0.7 = 70% quality
+        resolve(base64.split(",")[1]); // remove data:image/jpeg;base64,
+      };
+      img.src = URL.createObjectURL(file);
+    });
   };
+
+  console.log("compress done")
+
+  try {
+    const base64Image = await compressImage(image);
+
+    console.log("api call start")
+
+    const response = await fetch("https://python-backend-mg86.onrender.com/api/result", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image_data: base64Image }),
+    });
+
+    console.log("api call done")
+
+    const data = await response.json();
+    setResult(data);
+    console.log(data);
+  } catch (err) {
+    console.error(err);
+    alert("Error while processing image");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start mt-16 px-4  py-12 bg-white">
@@ -276,7 +322,7 @@ const faceShapeImages = {
 
   {/* Dropdown */}
   <div className="w-full">
-    <label htmlFor="bodyType" className="block text-m font-medium text-black-700 mb-1 font-semibold">
+    <label htmlFor="bodyType" className="block text-m text-black-700 mb-1 font-semibold">
       Select Body Type
     </label>
     <select
